@@ -1,0 +1,6 @@
+{
+  "name": "MailSetupLab",
+  "description": "Simulador educativo e interactivo de cliente de correo electrónico de escritorio para aprender IMAP, POP3, SMTP, TLS/SSL, OAuth2, cabeceras SPF/DKIM/DMARC y reglas de filtrado.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
