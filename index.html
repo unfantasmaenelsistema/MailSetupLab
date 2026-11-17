@@ -1669,7 +1669,7 @@ X-Originating-IP: [172.64.88.210]`
           id: Utils.uid('log'),
           ts: Utils.nowTimestamp(),
           protocol,   // IMAP | POP3 | SMTP | TLS | OAUTH2 | SYS
-          direction,  // TCP | C->S | S<-C | TLS | AUTH | ERR | WARN | OK
+          direction,  // TCP | C->S | S->C | TLS | AUTH | ERR | WARN | OK
           message,
           level       // info | cmd | resp | ok | warn | err
         };
@@ -1761,7 +1761,7 @@ X-Originating-IP: [172.64.88.210]`
 
         // Also catch server-specific NONE-only port with STARTTLS requested (like legacy:110 with STARTTLS)
         if (listenerCfg.security === 'NONE' && sec === 'STARTTLS') {
-          emit(proto, 'S<-C', listenerCfg.banner, 'resp');
+          emit(proto, 'S->C', listenerCfg.banner, 'resp');
           const err = `Error de conexión: El servidor en ${host}:${port} no anunció STARTTLS/STLS en sus capacidades.`;
           emit('TLS', 'ERR', err, 'err');
           return { ok: false, code: 'NO_TLS_ON_PORT', title: 'STARTTLS no soportado', message: err };
@@ -1793,7 +1793,7 @@ X-Originating-IP: [172.64.88.210]`
 
         // 3. Cross-Protocol / Port Mismatch Detection (after TCP/TLS opens and server sends banner)
         if ((!portCfg || !portCfg.allowed) && otherPortCfg && otherPortCfg.allowed) {
-          emit(proto, 'S<-C', otherPortCfg.banner, 'resp');
+          emit(proto, 'S->C', otherPortCfg.banner, 'resp');
           const mismatchMsg = proto === 'IMAP'
             ? `Respuesta de protocolo inválida: Se esperaba saludo '* OK [CAPABILITY IMAP4rev1]' pero el servidor respondió '+OK POP3 ready'`
             : `Respuesta de protocolo inválida: Se esperaba saludo '+OK POP3 ready' pero el servidor respondió '* OK [CAPABILITY IMAP4rev1]'`;
@@ -1802,7 +1802,7 @@ X-Originating-IP: [172.64.88.210]`
         }
 
         // Standard banner
-        emit(proto, 'S<-C', portCfg.banner, 'resp');
+        emit(proto, 'S->C', portCfg.banner, 'resp');
         await Utils.sleep(110);
 
         if (portCfg.plaintextWarning && sec === 'NONE') {
@@ -1823,7 +1823,7 @@ X-Originating-IP: [172.64.88.210]`
           const cmd = proto === 'IMAP' ? 'A001 STARTTLS' : 'STLS';
           emit(proto, 'C->S', cmd, 'cmd');
           await Utils.sleep(120);
-          emit(proto, 'S<-C', proto === 'IMAP' ? 'A001 OK Begin TLS negotiation now.' : '+OK Begin TLS negotiation now.', 'resp');
+          emit(proto, 'S->C', proto === 'IMAP' ? 'A001 OK Begin TLS negotiation now.' : '+OK Begin TLS negotiation now.', 'resp');
           emit('TLS', 'TLS', `STARTTLS negotiation complete · TLS 1.3 · Cert CN=${server.certificate.cn} OK`, 'ok');
           await Utils.sleep(110);
         }
@@ -1842,35 +1842,35 @@ X-Originating-IP: [172.64.88.210]`
           if (config.imapSubscribeAll !== false) {
             emit('IMAP', 'C->S', 'A003 LIST "" "*"', 'cmd');
             await Utils.sleep(100);
-            emit('IMAP', 'S<-C', '* LIST (\\HasNoChildren) "/" "INBOX"\n* LIST (\\Sent) "/" "Sent"\n* LIST (\\Drafts) "/" "Drafts"\n* LIST (\\Junk) "/" "Spam"\n* LIST (\\Trash) "/" "Trash"', 'resp');
+            emit('IMAP', 'S->C', '* LIST (\\HasNoChildren) "/" "INBOX"\n* LIST (\\Sent) "/" "Sent"\n* LIST (\\Drafts) "/" "Drafts"\n* LIST (\\Junk) "/" "Spam"\n* LIST (\\Trash) "/" "Trash"', 'resp');
           }
           emit('IMAP', 'C->S', 'A004 SELECT INBOX', 'cmd');
           await Utils.sleep(110);
-          emit('IMAP', 'S<-C', '* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)', 'resp');
+          emit('IMAP', 'S->C', '* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)', 'resp');
           emit('IMAP', 'C->S', 'A005 UID FETCH 1:* (FLAGS RFC822.SIZE BODY.PEEK[HEADER])', 'cmd');
           await Utils.sleep(120);
           emit('IMAP', 'C->S', `A006 UID STORE 1:* FLAGS (\\Seen[${seenCount}] \\Flagged[${flaggedCount}] \\Deleted[${deletedCount}])`, 'cmd');
           await Utils.sleep(100);
-          emit('IMAP', 'S<-C', `A006 OK Sincronización bidireccional IMAP completada (${config.imapOfflineSync !== false ? 'caché local offline activa' : 'solo cabeceras remotas'}).`, 'ok');
+          emit('IMAP', 'S->C', `A006 OK Sincronización bidireccional IMAP completada (${config.imapOfflineSync !== false ? 'caché local offline activa' : 'solo cabeceras remotas'}).`, 'ok');
           emit('IMAP', 'C->S', 'A007 LOGOUT', 'cmd');
           config.cloudPurgedByPop3 = false;
         } else {
           emit('POP3', 'C->S', 'CAPA', 'cmd');
           await Utils.sleep(90);
-          emit('POP3', 'S<-C', '+OK Capability list follows: TOP USER UIDL', 'resp');
+          emit('POP3', 'S->C', '+OK Capability list follows: TOP USER UIDL', 'resp');
           emit('POP3', 'C->S', 'STAT', 'cmd');
           await Utils.sleep(90);
-          emit('POP3', 'S<-C', '+OK 1 5400', 'resp');
+          emit('POP3', 'S->C', '+OK 1 5400', 'resp');
           emit('POP3', 'C->S', 'RETR 1', 'cmd');
           await Utils.sleep(110);
-          emit('POP3', 'S<-C', '+OK 5400 octets follow', 'ok');
+          emit('POP3', 'S->C', '+OK 5400 octets follow', 'ok');
 
           if (!config.pop3LeaveOnServer) {
             emit('POP3', 'C->S', 'DELE 1', 'cmd');
             await Utils.sleep(100);
-            emit('POP3', 'S<-C', '+OK Message 1 marked for deletion.', 'warn');
+            emit('POP3', 'S->C', '+OK Message 1 marked for deletion.', 'warn');
             emit('POP3', 'C->S', 'QUIT', 'cmd');
-            emit('POP3', 'S<-C', '+OK Deleting 1 message(s). El buzón remoto en la nube ha quedado vacío (solo copia en Carpetas Locales).', 'warn');
+            emit('POP3', 'S->C', '+OK Deleting 1 message(s). El buzón remoto en la nube ha quedado vacío (solo copia en Carpetas Locales).', 'warn');
             config.cloudPurgedByPop3 = true;
             config.cloudEmailCount = 0;
           } else {
@@ -1878,7 +1878,7 @@ X-Originating-IP: [172.64.88.210]`
               ? `Copia mantenida en el servidor (eliminación automática tras ${config.pop3DeleteAfterDays || 14} días).`
               : `Copia mantenida en el servidor.`;
             emit('POP3', 'C->S', 'QUIT', 'cmd');
-            emit('POP3', 'S<-C', `+OK ${retMsg}`, 'ok');
+            emit('POP3', 'S->C', `+OK ${retMsg}`, 'ok');
             config.cloudPurgedByPop3 = false;
             config.cloudEmailCount = 1;
           }
@@ -1938,13 +1938,13 @@ X-Originating-IP: [172.64.88.210]`
           await Utils.sleep(110);
         }
 
-        emit('SMTP', 'S<-C', portCfg.banner, 'resp');
+        emit('SMTP', 'S->C', portCfg.banner, 'resp');
         emit('SMTP', 'C->S', 'EHLO workstation.corporativo.local', 'cmd');
         await Utils.sleep(110);
-        emit('SMTP', 'S<-C', `250-${host} Hello workstation.corporativo.local`, 'resp');
+        emit('SMTP', 'S->C', `250-${host} Hello workstation.corporativo.local`, 'resp');
 
         if (portCfg.requireTLS) {
-          emit('SMTP', 'S<-C', '250-STARTTLS\n250-SIZE 35882577\n250 AUTH PLAIN LOGIN CRAM-MD5', 'resp');
+          emit('SMTP', 'S->C', '250-STARTTLS\n250-SIZE 35882577\n250 AUTH PLAIN LOGIN CRAM-MD5', 'resp');
           if (sec !== 'STARTTLS') {
             const err = '530 5.7.0 Must issue a STARTTLS command first before AUTH.';
             emit('SMTP', 'ERR', err, 'err');
@@ -1952,10 +1952,10 @@ X-Originating-IP: [172.64.88.210]`
           }
           emit('SMTP', 'C->S', 'STARTTLS', 'cmd');
           await Utils.sleep(110);
-          emit('SMTP', 'S<-C', '220 2.0.0 Ready to start TLS', 'resp');
+          emit('SMTP', 'S->C', '220 2.0.0 Ready to start TLS', 'resp');
           emit('TLS', 'TLS', `TLS 1.3 established (TLS_AES_256_GCM_SHA384)`, 'ok');
           emit('SMTP', 'C->S', 'EHLO workstation.corporativo.local', 'cmd');
-          emit('SMTP', 'S<-C', '250 AUTH PLAIN LOGIN CRAM-MD5 XOAUTH2', 'resp');
+          emit('SMTP', 'S->C', '250 AUTH PLAIN LOGIN CRAM-MD5 XOAUTH2', 'resp');
         } else if (portCfg.plaintextWarning) {
           emit('SMTP', 'WARN', `SMTP puerto ${port} sin cifrado TLS (texto plano).`, 'warn');
         }
@@ -1964,7 +1964,7 @@ X-Originating-IP: [172.64.88.210]`
         if (config.smtpRequireAuth === false) {
           if (mailPayload) {
             emit('SMTP', 'C->S', `MAIL FROM:<${config.email}>`, 'cmd');
-            emit('SMTP', 'S<-C', '250 2.1.0 Ok', 'resp');
+            emit('SMTP', 'S->C', '250 2.1.0 Ok', 'resp');
             emit('SMTP', 'C->S', `RCPT TO:<${mailPayload.to}>`, 'cmd');
           }
           const relayErr = '550 5.7.1 Relaying denied. Proper authentication required';
@@ -1983,27 +1983,27 @@ X-Originating-IP: [172.64.88.210]`
         if (mailPayload) {
           emit('SMTP', 'C->S', `MAIL FROM:<${config.email}>`, 'cmd');
           await Utils.sleep(80);
-          emit('SMTP', 'S<-C', '250 2.1.0 Ok', 'resp');
+          emit('SMTP', 'S->C', '250 2.1.0 Ok', 'resp');
           const recipients = [mailPayload.to, ...(mailPayload.ccList || []), ...(mailPayload.bccList || [])]
             .map((r) => (r || '').trim())
             .filter(Boolean);
           for (const rcpt of recipients) {
             emit('SMTP', 'C->S', `RCPT TO:<${rcpt}>`, 'cmd');
             await Utils.sleep(55);
-            emit('SMTP', 'S<-C', '250 2.1.5 Ok', 'resp');
+            emit('SMTP', 'S->C', '250 2.1.5 Ok', 'resp');
           }
           emit('SMTP', 'C->S', 'DATA', 'cmd');
           await Utils.sleep(80);
-          emit('SMTP', 'S<-C', '354 End data with <CR><LF>.<CR><LF>', 'resp');
+          emit('SMTP', 'S->C', '354 End data with <CR><LF>.<CR><LF>', 'resp');
           const mimeType = mailPayload.sendFormat === 'PLAIN' ? 'text/plain; charset=UTF-8' : 'multipart/alternative';
           emit('SMTP', 'C->S', `Content-Type: ${mimeType} | Subject: ${mailPayload.subject} (${mailPayload.bytes} bytes) [CRLF].[CRLF]`, 'cmd');
           await Utils.sleep(120);
           const qid = Math.random().toString(16).slice(2, 11).toUpperCase();
-          emit('SMTP', 'S<-C', `250 2.0.0 Ok: queued as ${qid}`, 'ok');
+          emit('SMTP', 'S->C', `250 2.0.0 Ok: queued as ${qid}`, 'ok');
         }
 
         emit('SMTP', 'C->S', 'QUIT', 'cmd');
-        emit('SMTP', 'S<-C', '221 2.0.0 Bye', 'resp');
+        emit('SMTP', 'S->C', '221 2.0.0 Bye', 'resp');
         return { ok: true, message: `Envío SMTP (${sec}:${port}) completado correctamente.` };
       },
 
@@ -2030,7 +2030,7 @@ X-Originating-IP: [172.64.88.210]`
             }
             emit('OAUTH2', 'AUTH', `C->S AUTH XOAUTH2 dXNlcj1hbHVtbm9AZ2hvc3RhY2FkZW15LmVkdQFhdXRoPUJlYXJlciBnaHN0X29hdXRoMgEB`, 'cmd');
             await Utils.sleep(140);
-            emit(proto, 'S<-C', proto === 'SMTP' ? '235 2.7.0 Authentication successful (XOAUTH2)' : 'A002 OK [CAPABILITY IMAP4rev1] Logged in via OAuth2', 'ok');
+            emit(proto, 'S->C', proto === 'SMTP' ? '235 2.7.0 Authentication successful (XOAUTH2)' : 'A002 OK [CAPABILITY IMAP4rev1] Logged in via OAuth2', 'ok');
             return { ok: true };
           }
 
@@ -2051,7 +2051,7 @@ X-Originating-IP: [172.64.88.210]`
             return { ok: false, code: 'APP_PASS_REQUIRED', title: 'Error 535 — Contraseña de Aplicación Requerida', message: err };
           }
 
-          emit(proto, 'S<-C', proto === 'SMTP' ? '235 2.7.0 Authentication successful' : 'A002 OK Logged in', 'ok');
+          emit(proto, 'S->C', proto === 'SMTP' ? '235 2.7.0 Authentication successful' : 'A002 OK Logged in', 'ok');
           return { ok: true };
         }
 
@@ -2067,7 +2067,7 @@ X-Originating-IP: [172.64.88.210]`
           }
           emit(proto, 'C->S', proto === 'IMAP' ? 'A002 AUTHENTICATE CRAM-MD5' : 'AUTH CRAM-MD5', 'cmd');
           await Utils.sleep(100);
-          emit(proto, 'S<-C', '+ PDE4OTYuNjk3MTcwOTUyQGNvcnBvcmF0aXZvLmxvY2FsPg==', 'resp');
+          emit(proto, 'S->C', '+ PDE4OTYuNjk3MTcwOTUyQGNvcnBvcmF0aXZvLmxvY2FsPg==', 'resp');
           const expectedPass = server.validUsers[user];
           emit(proto, 'C->S', btoa(`${user} hmac_md5_digest_${pass.length}`), 'cmd');
           await Utils.sleep(120);
@@ -2076,7 +2076,7 @@ X-Originating-IP: [172.64.88.210]`
             emit(proto, 'ERR', err, 'err');
             return { ok: false, title: 'Error CRAM-MD5', message: err };
           }
-          emit(proto, 'S<-C', proto === 'SMTP' ? '235 2.7.0 Authentication successful (CRAM-MD5)' : 'A002 OK Logged in (CRAM-MD5)', 'ok');
+          emit(proto, 'S->C', proto === 'SMTP' ? '235 2.7.0 Authentication successful (CRAM-MD5)' : 'A002 OK Logged in (CRAM-MD5)', 'ok');
           return { ok: true };
         }
 
@@ -2084,7 +2084,7 @@ X-Originating-IP: [172.64.88.210]`
         const expectedPass = server.validUsers[user];
         if (proto === 'POP3') {
           emit('POP3', 'C->S', `USER ${user}`, 'cmd');
-          emit('POP3', 'S<-C', `+OK Password required for ${user}`, 'resp');
+          emit('POP3', 'S->C', `+OK Password required for ${user}`, 'resp');
           emit('POP3', 'C->S', `PASS ${'*'.repeat(Math.max(6, pass.length))}`, 'cmd');
         } else if (proto === 'IMAP') {
           emit('IMAP', 'C->S', `A002 LOGIN ${user} ********`, 'cmd');
@@ -2108,7 +2108,7 @@ X-Originating-IP: [172.64.88.210]`
           : proto === 'POP3'
             ? '+OK Logged in.'
             : 'A002 OK [CAPABILITY IMAP4rev1] Logged in';
-        emit(proto, 'S<-C', okMsg, 'ok');
+        emit(proto, 'S->C', okMsg, 'ok');
         return { ok: true };
       },
 
@@ -2151,6 +2151,9 @@ X-Originating-IP: [172.64.88.210]`
 
       runAll(accountId = null) {
         const activeRules = AppState.rules.filter((r) => r.enabled);
+        // Los filtros solo actúan sobre la cuenta seleccionada: el registro dice cuál, para que no parezca que «no funcionan».
+        const runAccount = accountId ? AppState.accounts.find((a) => a.id === accountId) : null;
+        const inboxLabel = runAccount ? `Bandeja de entrada de ${runAccount.email}` : 'Bandeja de entrada de todas las cuentas';
         let movedCount = 0;
         let affectedCount = 0;
 
@@ -2221,15 +2224,15 @@ X-Originating-IP: [172.64.88.210]`
 
         if (affectedCount > 0) {
           AppState.missionStats.filtersExecutedCount += affectedCount;
-          ProtocolLogger.log('SYS', 'OK', `Filtros aplicados: ${affectedCount} coincidencias (${movedCount} movidos de carpeta). Revisa el Log de Filtros para detalles.`, 'ok');
+          ProtocolLogger.log('SYS', 'OK', `Filtros aplicados en ${inboxLabel}: ${affectedCount} coincidencias (${movedCount} movidos de carpeta). Revisa el Log de Filtros para detalles.`, 'ok');
         } else {
           this.addLog({
             ruleName: 'Motor de Filtros',
-            subject: 'Bandeja de entrada evaluada',
-            actions: [`0 mensajes coincidieron con las ${activeRules.length} regla(s) activas.`],
+            subject: `${inboxLabel} evaluada`,
+            actions: [`0 mensajes coincidieron con las ${activeRules.length} regla(s) activas.${runAccount ? ' Los filtros solo actúan sobre la cuenta seleccionada en la barra lateral.' : ''}`],
             level: 'info'
           });
-          ProtocolLogger.log('SYS', 'INFO', `Filtros ejecutados: 0 coincidencias nuevas en Bandeja de entrada.`, 'info');
+          ProtocolLogger.log('SYS', 'INFO', `Filtros ejecutados: 0 coincidencias nuevas en ${inboxLabel}.`, 'info');
         }
         saveState();
         return { affectedCount, movedCount };
@@ -2311,7 +2314,7 @@ X-Originating-IP: [172.64.88.210]`
           points: 100,
           category: 'IMAP 993 + SMTP 587',
           description: 'Configura la cuenta soporte@corporativo.local usando sincronización en la nube (IMAP puerto 993 SSL/TLS) y salida SMTP por puerto 587 con STARTTLS y autenticación activa.',
-          hint: 'Abre Configuración de Cuentas en soporte@corporativo.local, verifica IMAP 993 SSL/TLS + SMTP 587 STARTTLS con autenticación activa y pulsa "Probar Conexión" o "Recibir/Enviar".'
+          hint: 'Abre la cuenta soporte@corporativo.local con su engranaje («Configurar cuenta») en la barra lateral, verifica IMAP 993 SSL/TLS + SMTP 587 STARTTLS con autenticación activa y pulsa "Volver a probar (Test Connection)" o "Recibir/Enviar".'
         },
         {
           id: 'm2_legacy_pop3',
@@ -2335,7 +2338,7 @@ X-Originating-IP: [172.64.88.210]`
           points: 100,
           category: 'Filtros y Reglas',
           description: 'Crea y ejecuta dos reglas funcionales activas: una que mueva los correos cuyo asunto contenga [FACTURA] a Facturación, y otra que envíe a Cuarentena / Spam cualquier correo cuyo encabezado o remitente falle o sea sospechoso.',
-          hint: 'En "Filtros y Reglas", crea y activa ambas reglas (puedes usar las plantillas rápidas "[FACTURA] -> Facturación" y "Cuarentena SPF Fail") y pulsa "Ejecutar filtros ahora".'
+          hint: 'Selecciona antes la Bandeja de entrada de soporte@corporativo.local en la barra lateral (los filtros actúan sobre la cuenta seleccionada). En "Filtros y Reglas", crea y activa ambas reglas (puedes usar las plantillas rápidas "[FACTURA] -> Facturación" y "Cuarentena SPF Fail") y pulsa "Ejecutar filtros ahora".'
         },
         {
           id: 'm5_compose_signed',
@@ -2770,8 +2773,8 @@ X-Originating-IP: [192.30.252.206]`,
         if (lookalike) {
           discrepancies.push({
             severity: 'high',
-            title: 'Posible Typosquatting / Dominio Homógrafo detectado',
-            detail: `Se detecta un patrón de sustitución visual de caracteres en el dominio "${lookalike}".`
+            title: 'Posible Typosquatting (dominio parecido) detectado',
+            detail: `Se detecta un patrón de sustitución visual de caracteres en el dominio "${lookalike}" (por ejemplo, un cero en lugar de una «o»). Es typosquatting con caracteres ASCII; un dominio homógrafo, en cambio, usa letras de otro alfabeto (como la «о» cirílica) y se registra en punycode (xn--).`
           });
         }
 
@@ -3021,7 +3024,7 @@ X-Originating-IP: [192.30.252.206]`,
         // Initial boot console transcript
         if (AppState.consoleLogs.length === 0) {
           ProtocolLogger.log('SYS', 'OK', 'MailSetupLab inicializado en memoria (100% Client-Side). Perfil cargado: soporte@corporativo.local.', 'ok');
-          ProtocolLogger.log('IMAP', 'S<-C', '* OK [CAPABILITY IMAP4rev1 STARTTLS AUTH=PLAIN] Dovecot (mail.corporativo.local:993 TLS 1.3) ready.', 'resp');
+          ProtocolLogger.log('IMAP', 'S->C', '* OK [CAPABILITY IMAP4rev1 STARTTLS AUTH=PLAIN] Dovecot (mail.corporativo.local:993 TLS 1.3) ready.', 'resp');
         }
         MissionEngine.evaluate();
       },
@@ -3540,7 +3543,7 @@ X-Originating-IP: [192.30.252.206]`,
           }
           if (acc && acc.protocol === 'POP3' && acc.pop3DeleteOnLocalTrash && wasInbox) {
             ProtocolLogger.log('POP3', 'C->S', `DELE 1 (Regla: Eliminar del servidor al borrar de Bandeja de entrada)`, 'cmd');
-            ProtocolLogger.log('POP3', 'S<-C', `+OK Message marked for deletion on ${acc.incomingHost}.`, 'warn');
+            ProtocolLogger.log('POP3', 'S->C', `+OK Message marked for deletion on ${acc.incomingHost}.`, 'warn');
             acc.cloudEmailCount = 0;
           } else if (acc && acc.protocol === 'IMAP') {
             ProtocolLogger.log('IMAP', 'C->S', `A008 UID STORE ${msg.id} +FLAGS (\\Deleted)`, 'cmd');
@@ -4758,7 +4761,7 @@ X-Originating-IP: [192.30.252.206]`,
         const renderFilterLogs = () => {
           const logs = AppState.filterLogs || [];
           if (logs.length === 0) {
-            return `<div class="text-[11px] text-slate-500 py-2">Aún no se han ejecutado filtros. Pulsa "Ejecutar filtros ahora sobre Bandeja de Entrada" para ver la traza.</div>`;
+            return `<div class="text-[11px] text-slate-500 py-2">Aún no se han ejecutado filtros. Pulsa "Ejecutar filtros ahora" para ver la traza (actúan sobre la Bandeja de entrada de la cuenta seleccionada).</div>`;
           }
           return logs.slice(0, 30).map((l) => `
             <div class="py-1.5 border-b border-slate-800 last:border-0 text-[11px] font-mono flex items-start gap-2">
@@ -4943,7 +4946,7 @@ X-Originating-IP: [192.30.252.206]`,
           footerHtml: `
             <button type="button" id="rf-run-btn" class="px-4 py-1.5 text-xs font-semibold bg-cobalt-700 hover:bg-cobalt-800 text-white rounded flex items-center gap-1.5">
               <i data-lucide="play" class="w-3.5 h-3.5"></i>
-              <span>Ejecutar filtros ahora sobre Bandeja de Entrada</span>
+              <span>Ejecutar filtros ahora sobre la Bandeja de entrada de ${Utils.escapeHtml((AppState.accounts.find((a) => a.id === AppState.selectedAccountId) || {}).email || 'la cuenta seleccionada')}</span>
             </button>
             <button type="button" id="rf-close-btn" class="px-3.5 py-1.5 text-xs font-medium bg-white border border-slate-300 text-slate-700 rounded hover:bg-slate-50">Cerrar</button>
           `
@@ -5724,7 +5727,7 @@ X-Originating-IP: [192.30.252.206]`,
                     <pre class="bg-slate-950 text-emerald-300 font-mono text-[11px] p-2.5 rounded leading-relaxed">1. TCP Connect :993
 2. TLS ClientHello / ServerHello / Certificado X.509
 3. Canal cifrado activo
-4. S<-C: * OK Dovecot ready (ya cifrado)</pre>
+4. S->C: * OK Dovecot ready (ya cifrado)</pre>
                     <p class="text-[11px] text-emerald-900"><strong>Ventaja:</strong> No sufre ataques de degradación (<em>STARTTLS stripping</em>) y evita transmitir metadatos iniciales en claro.</p>
                   </div>
 
@@ -5733,9 +5736,9 @@ X-Originating-IP: [192.30.252.206]`,
                     <div class="font-mono text-[11px] text-amber-800">Puertos: 143 (IMAP), 110 (POP3), 587 / 25 (SMTP)</div>
                     <p class="leading-relaxed text-slate-700">La conexión comienza en <strong>texto plano</strong>. El servidor saluda con su banner y el cliente solicita explícitamente elevar el túnel mediante <code class="font-mono">STARTTLS</code> (o <code class="font-mono">STLS</code> en POP3).</p>
                     <pre class="bg-slate-950 text-amber-200 font-mono text-[11px] p-2.5 rounded leading-relaxed">1. TCP Connect :587
-2. S<-C: 220 mail.servidor ESMTP
-3. C->S: EHLO cliente -> S<-C: 250-STARTTLS
-4. C->S: STARTTLS -> S<-C: 220 Ready to start TLS
+2. S->C: 220 mail.servidor ESMTP
+3. C->S: EHLO cliente -> S->C: 250-STARTTLS
+4. C->S: STARTTLS -> S->C: 220 Ready to start TLS
 5. TLS Handshake -> C->S: AUTH PLAIN (ya cifrado)</pre>
                     <p class="text-[11px] text-amber-900"><strong>Riesgo si se malconfigura:</strong> Seleccionar "SSL/TLS" en el puerto 587 o 143 provoca <code class="font-mono">SSL_ERROR_RX_RECORD_TOO_LONG</code> porque el servidor responde texto ASCII en lugar de un registro TLS.</p>
                   </div>
@@ -5859,7 +5862,7 @@ proveedortelco.es.        3600  IN  TXT   ";; SIN REGISTRO SPF CONFIGURADO (spf=
 c0rporativo-security-alert.com. 300 IN MX   10 vps-194-82.hosted-node.net.
 c0rporativo-security-alert.com. 300 IN TXT  "v=spf1 ip4:203.0.113.5 ~all"  ; NO incluye 194.82.14.77 -> spf=softfail
 _dmarc.c0rporativo-security-alert.com. 300 IN TXT "v=DMARC1; p=none;"
-;; ALERT: Dominio homógrafo (typosquatting) recién registrado con política débil.`,
+;; ALERT: Dominio de typosquatting (cero en lugar de «o») recién registrado con política débil.`,
           'proton-secure-desk.com': `; <<>> DiG 9.18.24 <<>> proton-secure-desk.com MX TXT
 ;; ANSWER SECTION:
 proton-secure-desk.com.   300   IN  MX    10 mx.proton-secure-desk.com.
