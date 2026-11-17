@@ -15,32 +15,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CSS v3 CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-            sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-          },
-          colors: {
-            cobalt: {
-              50: '#EFF6FF',
-              100: '#DBEAFE',
-              500: '#3B82F6',
-              600: '#2563EB',
-              700: '#1D4ED8',
-              800: '#1E40AF',
-            }
-          }
-        }
-      }
-    };
-  </script>
-
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 
@@ -89,23 +63,27 @@
       body > *:not(#print-report-sheet) { display: none !important; }
       #print-report-sheet { display: block !important; position: static !important; width: 100% !important; padding: 20px !important; color: #0F172A !important; }
     }
+    /* Campos de contraseña de práctica: texto enmascarado, sin input type=password */
+    .pw-mask { -webkit-text-security: disc; text-security: disc; }
   </style>
+  <!-- Tailwind CSS compilado en el build (antes, CDN de desarrollo) -->
+  <link rel="stylesheet" href="/src/styles.css" />
 </head>
 <body class="flex flex-col h-screen w-screen overflow-hidden select-none">
 
   <!-- 1. DESKTOP WINDOW TITLE BAR -->
-  <header class="h-11 bg-slate-900 text-slate-100 flex items-center justify-between gap-4 px-3 border-b border-slate-800 shrink-0">
+  <header class="h-11 bg-slate-900 text-slate-100 flex items-center justify-between gap-2 sm:gap-4 px-2 sm:px-3 border-b border-slate-800 shrink-0">
     <!-- Brand & Author Web Link -->
     <div class="flex items-center gap-3 min-w-0 shrink-0">
       <a href="https://www.unfantasmaenelsistema.com/" target="_blank" rel="noopener noreferrer"
          title="Visitar Un Fantasma en el Sistema"
          class="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt-500 rounded px-1 py-0.5">
-        <img id="brand-logo" src="./assets/aistudio/icono_81a3db5b.png" alt="Logo Un Fantasma en el Sistema"
+        <img id="brand-logo" src="./assets/logo.png" alt="Logo Un Fantasma en el Sistema"
              referrerpolicy="no-referrer"
-             onerror="if(!this.dataset.tried){this.dataset.tried='1';this.src='./public/assets/aistudio/icono_81a3db5b.png';}else{this.style.display='none';document.getElementById('brand-logo-fallback').classList.remove('hidden');}"
+             onerror="this.style.display='none';document.getElementById('brand-logo-fallback').classList.remove('hidden');"
              class="h-7 w-auto object-contain shrink-0 bg-white/95 rounded p-0.5" />
         <span id="brand-logo-fallback" class="hidden h-7 w-7 rounded bg-cobalt-700 text-white flex items-center justify-center font-display font-bold text-xs shrink-0">UF</span>
-        <span class="font-display font-bold text-sm tracking-tight text-white whitespace-nowrap">MailSetupLab</span>
+        <span class="hidden min-[400px]:inline sm:inline font-display font-bold text-sm tracking-tight text-white whitespace-nowrap">MailSetupLab</span>
       </a>
       <span class="text-slate-600 hidden sm:inline" aria-hidden="true">|</span>
       <a href="https://www.unfantasmaenelsistema.com/" target="_blank" rel="noopener noreferrer"
@@ -116,7 +94,7 @@
     </div>
 
     <!-- Global Quick Search -->
-    <div class="flex-1 max-w-md mx-2">
+    <div class="flex-1 min-w-0 max-w-md mx-0 sm:mx-2">
       <div class="relative flex items-center">
         <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none"></i>
         <input id="global-search" type="search"
@@ -131,7 +109,7 @@
       <button id="btn-top-missions" type="button"
               class="flex items-center gap-2 px-2.5 py-1 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded transition-colors whitespace-nowrap shrink-0">
         <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-400"></i>
-        <span>CTF:</span>
+        <span class="hidden sm:inline">CTF:</span>
         <span id="top-score-value" class="font-mono tabular-nums font-semibold text-amber-300">0 / 600 pts</span>
       </button>
 
@@ -150,6 +128,12 @@
       </button>
     </div>
   </header>
+
+  <!-- Aviso fijo: simulador educativo (nada de lo que se escribe sale del navegador) -->
+  <div role="note" class="shrink-0 bg-amber-50 border-b border-amber-200 px-3 py-1 text-[11px] leading-snug text-amber-900 flex items-center gap-1.5">
+    <i data-lucide="info" class="w-3.5 h-3.5 shrink-0 text-amber-700"></i>
+    <span><strong>Simulador educativo de Un Fantasma en el Sistema.</strong> Las cuentas, los servidores y los correos son ficticios: no escribas aquí tus contraseñas reales.</span>
+  </div>
 
   <!-- 2. DESKTOP APPLICATION TOOLBAR RIBBON -->
   <nav aria-label="Herramientas principales" class="bg-slate-50 border-b border-slate-200 px-3 py-1.5 flex items-center gap-1.5 overflow-x-auto shrink-0">
@@ -308,9 +292,9 @@
     <section id="pane-console" style="height: 205px;" class="bg-slate-950 text-slate-200 flex flex-col shrink-0 overflow-hidden border-t border-slate-800">
       <div class="px-3 py-1.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-3 min-w-0">
-          <div class="flex items-center gap-2 shrink-0">
-            <i data-lucide="terminal" class="w-3.5 h-3.5 text-emerald-400"></i>
-            <h2 class="font-display font-semibold text-xs text-slate-100 whitespace-nowrap">Consola de Red / Log de Protocolo en Vivo</h2>
+          <div class="flex items-center gap-2 min-w-0">
+            <i data-lucide="terminal" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+            <h2 class="font-display font-semibold text-xs text-slate-100 whitespace-nowrap truncate"><span class="sm:hidden">Consola</span><span class="hidden sm:inline">Consola de Red / Log de Protocolo en Vivo</span></h2>
           </div>
 
           <div id="console-filter-bar" class="hidden sm:flex items-center gap-1 bg-slate-800/80 p-0.5 rounded border border-slate-700 text-[11px]">
@@ -839,8 +823,8 @@ X-Originating-IP: [10.24.12.8]`
             id: 'msg_05',
             accountId: 'acc_corp',
             folder: 'inbox',
-            fromName: 'Seguridad Microsoft 365',
-            fromEmail: 'no-reply@micr0soft-security-alert.com',
+            fromName: 'Seguridad del Buzón Corporativo',
+            fromEmail: 'no-reply@c0rporativo-security-alert.com',
             to: 'soporte@corporativo.local',
             replyTo: 'harvest@vps-194-82.hosted-node.net',
             subject: 'Aviso crítico: Su contraseña de buzón expira hoy - Verifique su cuenta',
@@ -852,7 +836,7 @@ X-Originating-IP: [10.24.12.8]`
             isPhishing: true,
             reportedPhishing: false,
             phishingIndicators: [
-              'Dominio typosquatting (cero en lugar de o): micr0soft-security-alert.com',
+              'Dominio typosquatting (cero en lugar de o, imita a corporativo): c0rporativo-security-alert.com',
               'Return-Path sospechoso: admin@vps-194-82.hosted-node.net',
               'SPF SOFTFAIL y DKIM FAIL — Intento de robo de credenciales'
             ],
@@ -865,7 +849,7 @@ X-Originating-IP: [10.24.12.8]`
               <p>Su sesión de correo caducará en <strong>2 horas</strong> debido a una actualización de políticas de seguridad. Si no revalida sus credenciales su buzón será suspendido.</p>
               <p class="my-3">
                 <span class="inline-block px-4 py-2 bg-blue-600 text-white rounded text-xs font-semibold cursor-not-allowed">
-                  Revalidar Contraseña Ahora (hxxp://micr0soft-security-alert.com/login?u=soporte)
+                  Revalidar Contraseña Ahora (hxxp://c0rporativo-security-alert.com/login?u=soporte)
                 </span>
               </p>
               <p class="text-xs text-slate-500">Equipo de Soporte Técnico Global.</p>`,
@@ -882,10 +866,10 @@ Received: from localhost (web-panel-03 [45.134.212.90])
 \tby vps-194-82.hosted-node.net (Postfix) with ESMTP id 08A71D02
 \tfor <soporte@corporativo.local>; Mon, 16 Nov 2026 16:12:00 +0100 (CET)
 Authentication-Results: mx-edge01.corporativo.local;
-\tspf=softfail (domain of micr0soft-security-alert.com does not designate 194.82.14.77) smtp.mailfrom=admin@vps-194-82.hosted-node.net;
+\tspf=softfail (domain of c0rporativo-security-alert.com does not designate 194.82.14.77) smtp.mailfrom=admin@vps-194-82.hosted-node.net;
 \tdkim=fail (bad RSA signature verification);
-\tdmarc=fail (p=NONE) header.from=micr0soft-security-alert.com
-From: "Seguridad Microsoft 365" <no-reply@micr0soft-security-alert.com>
+\tdmarc=fail (p=NONE) header.from=c0rporativo-security-alert.com
+From: "Seguridad del Buzón Corporativo" <no-reply@c0rporativo-security-alert.com>
 Reply-To: <harvest@vps-194-82.hosted-node.net>
 To: <soporte@corporativo.local>
 Subject: Aviso crítico: Su contraseña de buzón expira hoy - Verifique su cuenta
@@ -2050,9 +2034,11 @@ X-Originating-IP: [172.64.88.210]`
             return { ok: true };
           }
 
-          const cleanPass = pass.replace(/-/g, '').trim();
+          // Solo valen las contraseñas de aplicación emitidas para esa cuenta (con o sin guiones/espacios).
+          // Antes se aceptaba cualquier cadena alfanumérica de 16 caracteres.
+          const normalizeAppPass = (v) => String(v || '').replace(/[\s-]/g, '').toLowerCase();
           const isAppPassMethod = method === 'APP_PASSWORD';
-          const isValidAppPass = record.appPasswords.includes(pass) || (isAppPassMethod && cleanPass.length === 16 && /^[a-zA-Z0-9]+$/.test(cleanPass));
+          const isValidAppPass = record.appPasswords.map(normalizeAppPass).includes(normalizeAppPass(pass));
 
           emit(proto, 'C->S', proto === 'SMTP' ? `AUTH PLAIN ${btoa('\0' + user + '\0********')}` : `A002 LOGIN ${user} ********`, 'cmd');
           await Utils.sleep(130);
@@ -2365,7 +2351,7 @@ X-Originating-IP: [172.64.88.210]`
           points: 100,
           category: 'Forense RFC 5322',
           description: 'Inspecciona las cabeceras RFC 5322 de la bandeja de entrada, identifica el correo suplantado (Spoofing) y envía el reporte forense del ticket con la IP real del atacante, el dominio oculto en Reply-To y el resultado SPF.',
-          hint: 'Usa Ctrl+U sobre el correo sospechoso ("URGENTE: Transferencia..." o "Seguridad Microsoft 365") para extraer X-Originating-IP / primer Received, Reply-To y Authentication-Results.'
+          hint: 'Usa Ctrl+U sobre el correo sospechoso ("URGENTE: Transferencia..." o "Seguridad del Buzón Corporativo") para extraer X-Originating-IP / primer Received, Reply-To y Authentication-Results.'
         }
       ],
 
@@ -2382,10 +2368,16 @@ X-Originating-IP: [172.64.88.210]`
           r.actionMoveTo === 'invoices' &&
           (r.conditions || []).some((c) => c.field === 'subject' && String(c.value || '').toLowerCase().includes('factura'))
         );
+        // La regla de cuarentena debe atrapar todos los correos sospechosos y ningún correo legítimo:
+        // antes bastaba una regla cualquiera hacia Spam (aunque no coincidiera con nada) y mover el phishing a mano.
+        const phishingEmails = AppState.emails.filter((m) => m.isPhishing);
+        const legitEmails = AppState.emails.filter((m) => !m.isPhishing && m.accountId === 'acc_corp');
         const hasQuarantineRule = AppState.rules.some((r) =>
           r.enabled &&
           r.actionMoveTo === 'spam' &&
-          (r.conditions || []).some((c) => ['auth_headers', 'headers', 'from', 'subject'].includes(c.field) && String(c.value || '').trim().length > 0)
+          phishingEmails.length > 0 &&
+          phishingEmails.every((m) => FilterEngine.matchesRule(m, r)) &&
+          !legitEmails.some((m) => FilterEngine.matchesRule(m, r))
         );
         const invoicesMoved = AppState.emails.some((m) => /\[factura\]/i.test(m.subject) && m.folder === 'invoices');
         const suspiciousQuarantined = AppState.emails.some((m) => m.isPhishing && m.folder === 'spam');
@@ -2772,7 +2764,7 @@ X-Originating-IP: [192.30.252.206]`,
           });
         }
 
-        // Typosquatting heuristic (e.g. digits replacing letters like micr0soft)
+        // Typosquatting heuristic (e.g. digits replacing letters like c0rporativo)
         const domainsToCheck = [from.domain, returnPath.domain, replyTo.domain].filter(Boolean);
         const lookalike = domainsToCheck.find((d) => /micr0soft|g00gle|paypa1|appl3|c0rporativo/i.test(d));
         if (lookalike) {
@@ -4040,8 +4032,8 @@ X-Originating-IP: [192.30.252.206]`,
                   ${draft.authMethod === 'APP_PASSWORD' ? 'Contraseña de Aplicación (16 caracteres)' : 'Contraseña'}
                 </label>
                 <div class="relative flex items-center">
-                  <input id="wz-password" type="password" value="${Utils.escapeHtml(draft.password)}" placeholder="Introduce contraseña"
-                         class="w-full pl-2.5 pr-8 py-1.5 text-xs font-mono border border-slate-300 rounded focus:outline-none focus:border-cobalt-500" />
+                  <input id="wz-password" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" value="${Utils.escapeHtml(draft.password)}" placeholder="Contraseña de la cuenta de práctica"
+                         class="pw-mask w-full pl-2.5 pr-8 py-1.5 text-xs font-mono border border-slate-300 rounded focus:outline-none focus:border-cobalt-500" />
                   <button type="button" id="wz-toggle-pass" title="Mostrar/Ocultar contraseña"
                           class="absolute right-2 text-slate-400 hover:text-slate-700">
                     <i data-lucide="eye" class="w-3.5 h-3.5"></i>
@@ -4146,8 +4138,8 @@ X-Originating-IP: [192.30.252.206]`,
                     <div id="wz-smtp-custom-creds" class="${draft.smtpUseSameCreds !== false ? 'hidden' : ''} grid grid-cols-2 gap-2">
                       <input id="wz-smtp-user" type="text" value="${Utils.escapeHtml(draft.smtpUsername || '')}" placeholder="Usuario SMTP"
                              class="px-2 py-1 text-xs border border-slate-300 rounded" />
-                      <input id="wz-smtp-pass" type="password" value="${Utils.escapeHtml(draft.smtpPassword || '')}" placeholder="Clave SMTP"
-                             class="px-2 py-1 text-xs font-mono border border-slate-300 rounded" />
+                      <input id="wz-smtp-pass" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" value="${Utils.escapeHtml(draft.smtpPassword || '')}" placeholder="Clave SMTP"
+                             class="pw-mask px-2 py-1 text-xs font-mono border border-slate-300 rounded" />
                     </div>
                   </div>
                 </div>
@@ -4218,8 +4210,8 @@ X-Originating-IP: [192.30.252.206]`,
         });
 
         document.getElementById('wz-toggle-pass').addEventListener('click', () => {
-          const inp = document.getElementById('wz-password');
-          inp.type = inp.type === 'password' ? 'text' : 'password';
+          // Sin input type=password (aviso de Safe Browsing): el campo es de texto enmascarado con CSS
+          document.getElementById('wz-password').classList.toggle('pw-mask');
         });
 
         document.getElementById('wz-smtp-auth').addEventListener('change', (e) => {
@@ -5358,7 +5350,7 @@ X-Originating-IP: [192.30.252.206]`,
 
         const phishCandidates = [
           { id: 'msg_03', label: 'Dirección Financiera — URGENTE: Transferencia pendiente proveedor (msg_03)' },
-          { id: 'msg_05', label: 'Seguridad Microsoft 365 — Aviso crítico: Contraseña expira hoy (msg_05)' }
+          { id: 'msg_05', label: 'Seguridad del Buzón Corporativo — Aviso crítico: Contraseña expira hoy (msg_05)' }
         ];
 
         this.openModal({
@@ -5827,7 +5819,7 @@ X-Originating-IP: [192.30.252.206]`,
                       <option value="corporativo.local">corporativo.local</option>
                       <option value="ghostacademy.edu">ghostacademy.edu</option>
                       <option value="proveedortelco.es">proveedortelco.es</option>
-                      <option value="micr0soft-security-alert.com">micr0soft-security-alert.com (Phishing)</option>
+                      <option value="c0rporativo-security-alert.com">c0rporativo-security-alert.com (Phishing)</option>
                       <option value="proton-secure-desk.com">proton-secure-desk.com (Reply-To)</option>
                     </select>
                   </div>
@@ -5862,11 +5854,11 @@ _submissions._tcp.ghostacademy.edu. 3600 IN SRV 0 1 465 secure.ghostacademy.edu.
 proveedortelco.es.        3600  IN  MX    10 legacy.proveedortelco.es.
 proveedortelco.es.        3600  IN  TXT   ";; SIN REGISTRO SPF CONFIGURADO (spf=none)"
 ;; WARNING: Sin clave pública DKIM ni registro _dmarc publicado. Servidor heredado POP3/Sendmail.`,
-          'micr0soft-security-alert.com': `; <<>> DiG 9.18.24 <<>> micr0soft-security-alert.com MX TXT
+          'c0rporativo-security-alert.com': `; <<>> DiG 9.18.24 <<>> c0rporativo-security-alert.com MX TXT
 ;; ANSWER SECTION:
-micr0soft-security-alert.com. 300 IN MX   10 vps-194-82.hosted-node.net.
-micr0soft-security-alert.com. 300 IN TXT  "v=spf1 ip4:203.0.113.5 ~all"  ; NO incluye 194.82.14.77 -> spf=softfail
-_dmarc.micr0soft-security-alert.com. 300 IN TXT "v=DMARC1; p=none;"
+c0rporativo-security-alert.com. 300 IN MX   10 vps-194-82.hosted-node.net.
+c0rporativo-security-alert.com. 300 IN TXT  "v=spf1 ip4:203.0.113.5 ~all"  ; NO incluye 194.82.14.77 -> spf=softfail
+_dmarc.c0rporativo-security-alert.com. 300 IN TXT "v=DMARC1; p=none;"
 ;; ALERT: Dominio homógrafo (typosquatting) recién registrado con política débil.`,
           'proton-secure-desk.com': `; <<>> DiG 9.18.24 <<>> proton-secure-desk.com MX TXT
 ;; ANSWER SECTION:

@@ -1,7 +1,13 @@
+<div align="center">
+  <a href="https://www.unfantasmaenelsistema.com/">
+    <img src="./public/assets/logo.png" alt="Logo de Un Fantasma en el Sistema" width="88" />
+  </a>
+</div>
+
 # MailSetupLab — Simulador Educativo de Cliente de Correo y Protocolos
 
-[![100% Client-Side](https://img.shields.io/badge/Arquitectura-100%25_Client--Side-1D4ED8?style=flat-square)](#arquitectura-y-despliegue)
-[![GitHub Pages Ready](https://img.shields.io/badge/Deploy-GitHub_Pages_Ready-047857?style=flat-square)](#despliegue-en-github-pages)
+[![100% Client-Side](https://img.shields.io/badge/Arquitectura-100%25_Client--Side-1D4ED8?style=flat-square)](#arquitectura-y-despliegue-en-github-pages)
+[![Probar en GitHub Pages](https://img.shields.io/badge/Probar-en_el_navegador-047857?style=flat-square&logo=github)](https://unfantasmaenelsistema.github.io/MailSetupLab/)
 [![Protocolos](https://img.shields.io/badge/Protocolos-IMAP_%7C_POP3_%7C_SMTP_%7C_TLS_%7C_OAuth2-0F172A?style=flat-square)](#capacidades-del-simulador)
 [![Licencia MIT](https://img.shields.io/badge/Licencia-MIT-475569?style=flat-square)](LICENSE)
 
@@ -9,11 +15,26 @@
 
 Funciona **100 % en el lado del cliente** dentro de un único `index.html` autocontenido, sin backend ni dependencias de servidor, con persistencia local en `localStorage` y botón de reseteo completo del laboratorio.
 
-> Proyecto vinculado a [unfantasmaenelsistema.com](https://www.unfantasmaenelsistema.com/).
+**[▶ Abrir el laboratorio](https://unfantasmaenelsistema.github.io/MailSetupLab/)** · Proyecto de [Un Fantasma en el Sistema](https://www.unfantasmaenelsistema.com/).
+
+> **Simulador educativo.** Las cuentas, los servidores y los correos (incluidos los de phishing) son ficticios y nada sale del navegador. La propia app lo recuerda con un aviso fijo: no escribas ahí contraseñas reales.
+
+## Tabla de Contenidos
+
+- [Capturas Reales de la Aplicación](#capturas-reales-de-la-aplicación)
+- [Capacidades del Simulador](#capacidades-del-simulador)
+- [Servidores Simulados Disponibles en el Laboratorio](#servidores-simulados-disponibles-en-el-laboratorio)
+- [Tickets de Evaluación (600 pts)](#tickets-de-evaluación-600-pts)
+- [Atajos de Teclado](#atajos-de-teclado)
+- [Arquitectura y Despliegue en GitHub Pages](#arquitectura-y-despliegue-en-github-pages)
+- [Estructura del Repositorio](#estructura-del-repositorio)
+- [Novedades de la versión 2](#novedades-de-la-versión-2)
 
 ---
 
 ## Capturas Reales de la Aplicación
+
+> Capturas de la versión 2 tomadas sobre la compilación de producción, recorriendo los tickets de verdad.
 
 ### 1. Escritorio de 3 Paneles, Barra de Estado y Consola TCP/TLS en Vivo
 ![Escritorio principal de MailSetupLab con lista de correos, vista previa y consola TCP/TLS](docs/screenshots/01_escritorio_principal.png)
@@ -35,6 +56,10 @@ Funciona **100 % en el lado del cliente** dentro de un único `index.html` autoc
 | :---: | :---: |
 | ![Referencia rápida de puertos y protocolos](docs/screenshots/06_referencia_protocolos_puertos.png) | ![Simulador DNS de registros MX, SPF, DKIM y DMARC](docs/screenshots/07_simulador_dns_spf_dmarc.png) |
 
+### 7. Versión móvil
+
+<img src="docs/screenshots/08_movil.png" alt="MailSetupLab en un móvil" width="300" />
+
 ---
 
 ## Capacidades del Simulador
@@ -48,7 +73,7 @@ Funciona **100 % en el lado del cliente** dentro de un único `index.html` autoc
 2. **Asistente Manual de Cuentas y Motor Realista de Errores:**
    - Soporte completo para `IMAP` (`143`/`993`) vs `POP3` (`110`/`995`) y salida `SMTP` (`25`/`465`/`587`/`2525`).
    - Opciones reales dependientes de protocolo: retención en servidor POP3 (*"Dejar los mensajes en el servidor"*, borrado tras X días o al vaciar bandeja) vs suscripción y caché offline en IMAP.
-   - Simulación exacta de fallos reales: `SSL_ERROR_RX_RECORD_TOO_LONG` por desajuste de puerto/TLS, cruce `IMAP`/`POP3`, alerta de certificado X.509 caducado (`SEC_ERROR_UNKNOWN_ISSUER`) con excepción manual, rechazo `535 5.7.8` por autenticación básica deshabilitada, flujo **OAuth2** / **App Password (16 caracteres)** y errores SMTP `502`/`550`.
+   - Simulación exacta de fallos reales: `SSL_ERROR_RX_RECORD_TOO_LONG` por desajuste de puerto/TLS, cruce `IMAP`/`POP3`, alerta de certificado X.509 caducado (`SEC_ERROR_UNKNOWN_ISSUER`) con excepción manual, rechazo `535 5.7.8` por autenticación básica deshabilitada, flujo **OAuth2** / **App Password** (solo vale la contraseña de aplicación emitida para la cuenta, con o sin guiones) y errores SMTP `502`/`550`.
 
 3. **Motor de Filtros, Editor Dual de Firmas y Redacción SMTP:**
    - Reglas combinables (`Cumplir TODAS` / `CUALQUIERA`) con múltiples condiciones (`De`, `Para`, `Asunto`, `Cuerpo`, `Cabecera SPF/DKIM`, `Tamaño KB`, `Adjuntos`) y acciones (`Mover a carpeta`, `Etiqueta de color`, `Marcar como leído`, `Destacar`, `Reenviar`, `Detener procesamiento`), prioridad reordenable y Log de Filtros.
@@ -82,7 +107,7 @@ Funciona **100 % en el lado del cliente** dentro de un único `index.html` autoc
 1. **Misión 1 — Configuración Corporativa Estándar (100 pts):** Verificar `soporte@corporativo.local` con `IMAP 993 SSL/TLS` + `SMTP 587 STARTTLS` y autenticación activa.
 2. **Misión 2 — Migración POP3 con Respaldo en Servidor (100 pts):** Conectar `legacy.proveedortelco.es` con `POP3 995 SSL/TLS`, aceptar la excepción del certificado caducado y marcar *"Dejar los mensajes en el servidor"*.
 3. **Misión 3 — Resolución de Error SMTP 535 / App Password (100 pts):** Conectar `secure.ghostacademy.edu` con `IMAP 993 SSL/TLS`, `SMTP 465 SSL/TLS` y autenticación `OAuth2` o `App Password`.
-4. **Misión 4 — Automatización con Reglas de Correo (100 pts):** Crear y ejecutar dos reglas activas: mover mensajes con `[FACTURA]` en el asunto a **Facturación** y enviar correos con fallos/remitente sospechoso a **Cuarentena / Spam**.
+4. **Misión 4 — Automatización con Reglas de Correo (100 pts):** Crear y ejecutar dos reglas activas: mover mensajes con `[FACTURA]` en el asunto a **Facturación** y enviar correos con fallos/remitente sospechoso a **Cuarentena / Spam**. La regla de cuarentena tiene que atrapar los dos correos fraudulentos y ningún correo legítimo; mover el phishing a mano no cuenta.
 5. **Misión 5 — Identidad Corporativa (100 pts):** Configurar firma HTML (nombre, departamento y separador `-- `) para la cuenta corporativa y enviar un correo válido pasando la validación SMTP.
 6. **Misión 6 — Caza de Phishing Forense (100 pts):** Analizar las cabeceras RFC 5322 de un correo suplantado en la bandeja de entrada y enviar en el formulario del ticket su IP real de origen, el dominio oculto en `Reply-To` y el resultado `SPF`.
 
@@ -93,7 +118,7 @@ Funciona **100 % en el lado del cliente** dentro de un único `index.html` autoc
   - IP real del atacante (`X-Originating-IP` / primer `Received`): `185.220.101.47` (relay externo: `193.142.88.19`)
   - Dominio oculto en `Reply-To`: `proton-secure-desk.com`
   - Resultado `SPF`: `FAIL`
-- **Correo `msg_05` (*Seguridad Microsoft 365 — Aviso crítico...*):**
+- **Correo `msg_05` (*Seguridad del Buzón Corporativo — Aviso crítico...*, desde el dominio typosquatting `c0rporativo-security-alert.com`):**
   - IP real del atacante (`X-Originating-IP` / primer `Received`): `45.134.212.90` (relay externo: `194.82.14.77`)
   - Dominio oculto en `Reply-To`: `vps-194-82.hosted-node.net`
   - Resultado `SPF`: `SOFTFAIL`
@@ -114,21 +139,23 @@ Funciona **100 % en el lado del cliente** dentro de un único `index.html` autoc
 
 ## Arquitectura y Despliegue en GitHub Pages
 
-Todo el simulador reside en **`index.html`** utilizando HTML5, Tailwind CSS (CDN), Lucide Icons (CDN) y JavaScript modularizado en memoria (`AppState` + `localStorage`).
+Todo el simulador reside en **`index.html`**: HTML5, JavaScript en memoria (`AppState` + `localStorage`), **Tailwind CSS 3 compilado en el build** y **Lucide 0.468.0** desde CDN con versión fija.
 
-### Opción A — Despliegue directo en GitHub Pages (Recomendado, sin compilación)
-1. Sube este repositorio a GitHub.
-2. Ve a **Settings → Pages** en tu repositorio.
-3. En **Build and deployment → Source**, selecciona **Deploy from a branch**.
-4. Elige la rama **`main`** y la carpeta **`/ (root)`**, y pulsa **Save**.
-5. El archivo `.nojekyll` incluido asegura que todos los recursos estáticos se sirvan sin alteraciones. En segundos tendrás tu laboratorio online en `https://<tu-usuario>.github.io/<tu-repo>/`.
+El flujo [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) se ejecuta en cada `push` a `main`: instala con Bun (`bun install --frozen-lockfile`), compila `./dist` y lo publica en https://unfantasmaenelsistema.github.io/MailSetupLab/ (en **Settings → Pages**, la fuente es **GitHub Actions**).
 
-### Opción B — Entorno local o build con Vite
+### Uso en local
+
+Requisitos: **[Bun](https://bun.sh/)** (el proyecto usa `bun.lock`).
+
 ```bash
-npm install
-npm run dev       # Servidor local en http://localhost:3000
-npm run build     # Genera la carpeta dist/ lista para hosting estático
+git clone https://github.com/unfantasmaenelsistema/MailSetupLab.git
+cd MailSetupLab
+bun install
+bun run dev        # http://localhost:3000
+bun run build      # genera ./dist para publicar
 ```
+
+Abrir `index.html` directamente ya no basta: los estilos de Tailwind se generan al compilar.
 
 ---
 
@@ -136,10 +163,25 @@ npm run build     # Genera la carpeta dist/ lista para hosting estático
 
 ```text
 .
-├── index.html                  # Aplicación completa autocontenida (UI + motores IMAP/POP3/SMTP/DNS/RFC5322/CTF)
-├── public/assets/aistudio/     # Logotipo corporativo
+├── index.html                  # Aplicación completa (UI + motores IMAP/POP3/SMTP/DNS/RFC5322/CTF)
+├── src/styles.css              # Directivas de Tailwind (compiladas por Vite + PostCSS)
+├── tailwind.config.js          # Misma configuración que usaba el CDN
+├── postcss.config.js · vite.config.js · package.json · bun.lock
+├── public/assets/logo.png      # Logotipo de Un Fantasma en el Sistema
 ├── docs/screenshots/           # Capturas reales de la aplicación para documentación
-├── .nojekyll                   # Compatibilidad directa con GitHub Pages desde raíz
+├── .github/workflows/          # Compilación con Bun y despliegue en GitHub Pages
 ├── LICENSE                     # Licencia MIT
 └── README.md                   # Documentación completa del laboratorio
 ```
+
+---
+
+## Novedades de la versión 2
+
+- **Publicado en GitHub Pages** desde la organización, con compilación en Bun. Antes Pages no estaba activado.
+- **Misión 3 sin atajo.** Cualquier cadena alfanumérica de 16 caracteres valía como «contraseña de aplicación»; ahora solo la que emite el servidor para la cuenta.
+- **Misión 4 sin atajo.** Bastaba una regla hacia Spam que no atrapara nada y mover el phishing a mano. Ahora la regla de cuarentena tiene que atrapar los dos correos fraudulentos sin tocar ningún legítimo (la plantilla «Cuarentena SPF Fail» lo cumple).
+- **Nada que parezca un formulario de credenciales real.** Los campos de contraseña del asistente ya no son `type="password"` (se enmascaran con CSS), el phishing de ejemplo deja de usar la marca de Microsoft y suplanta al propio dominio corporativo con `c0rporativo-security-alert.com` (misma lección de typosquatting), y hay un aviso fijo de simulador educativo.
+- **Móvil:** la cabecera ya no se sale de la pantalla y el título de la consola no queda tapado por sus botones.
+- **Tailwind compilado** con la misma configuración que el CDN de desarrollo (que avisaba de no usarse en producción). Comparado píxel a píxel en siete vistas, en escritorio y en móvil: idéntico salvo la fila del phishing renombrado.
+- **Limpieza:** fuera el esqueleto de React, Gemini, Express y demás restos de AI Studio, `.nojekyll` y la doble ruta del logo.
