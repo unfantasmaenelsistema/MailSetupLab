@@ -176,6 +176,13 @@ Abrir `index.html` directamente ya no basta: los estilos de Tailwind se generan 
 
 ---
 
+## Novedades de la versión 2.1
+
+- **Misión 4 sin trampa involuntaria.** Al guardar una cuenta nueva, la app la deja seleccionada, y los filtros solo actúan sobre la cuenta seleccionada: si se hacían las misiones en orden, las reglas se ejecutaban sobre la cuenta de GhostAcademy y el registro solo decía «0 mensajes coincidieron». Ahora el botón y el registro nombran la cuenta («Bandeja de entrada de …») y avisan de que solo se filtra la seleccionada, y la pista del ticket lo explica.
+- **Pista del ticket 1 corregida:** la cuenta corporativa se abre con su engranaje («Configurar cuenta»); «Configuración de Cuentas» abre el asistente vacío. El botón se llama «Volver a probar (Test Connection)».
+- **Notación de la consola:** las respuestas del servidor se marcaban `S<-C` (como si fueran del cliente al servidor); ahora son `S->C`, también en la Referencia rápida.
+- **Typosquatting no es homógrafo:** el detector de cabeceras y el simulador DNS ya no llaman «dominio homógrafo» a `c0rporativo-security-alert.com` (un cero en lugar de una «o» es typosquatting ASCII; un homógrafo usa letras de otro alfabeto y se registra en punycode).
+
 ## Novedades de la versión 2
 
 - **Publicado en GitHub Pages** desde la organización, con compilación en Bun. Antes Pages no estaba activado.
